@@ -1,62 +1,88 @@
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 function PlannerMensal({ mes }) {
-  const [diasDoMes, setDiasDoMes] = useState([]);
+  const [semanasDoMes, setSemanasDoMes] = useState([]);
   const [hoje] = useState(new Date());
 
-  const obterDiasDoMes = (ano, mes) => {
-    const dias = [];
+  const navigate = useNavigate();
+
+  const obterSemanasDoMes = (ano, mes) => {
+    const semanas = [];
     const primeiroDia = new Date(ano, mes, 1);
     const ultimoDia = new Date(ano, mes + 1, 0);
-    const diaDaSemana = primeiroDia.getDay(); // 0 = domingo, 1 = segunda...
+    const diaDaSemana = primeiroDia.getDay();
 
-    // Adiciona divs vazias para os dias antes do início do mês
+    const dias = [];
+
     for (let i = 0; i < diaDaSemana; i++) {
-      dias.push(null); // espaço vazio
+      dias.push(null); // espaço vazio antes do dia 1
     }
 
-    // Adiciona os dias reais do mês
     for (let i = 1; i <= ultimoDia.getDate(); i++) {
       dias.push(new Date(ano, mes, i));
     }
 
-    return dias;
+    // Agrupar em semanas
+    for (let i = 0; i < dias.length; i += 7) {
+      semanas.push(dias.slice(i, i + 7));
+    }
+
+    return semanas;
   };
 
   useEffect(() => {
     const ano = new Date().getFullYear();
-    const dias = obterDiasDoMes(ano, mes);
-    setDiasDoMes(dias);
+    const semanas = obterSemanasDoMes(ano, mes);
+    setSemanasDoMes(semanas);
   }, [mes]);
 
   return (
-    <div className="grid grid-cols-7 gap-2">
-      {/* Cabeçalho dos dias da semana */}
-      {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((dia, i) => (
-        <div key={i} className="text-center font-semibold text-gray-700">
-          {dia}
-        </div>
-      ))}
-
-      {/* Dias do mês */}
-      {diasDoMes.map((dia, index) =>
-        dia ? (
-          <div
-            key={index}
-            className={`border p-4 text-center rounded h-25 ${
-              dia.getDate() === hoje.getDate() &&
-              dia.getMonth() === hoje.getMonth() &&
-              dia.getFullYear() === hoje.getFullYear()
-                ? "bg-green-100 font-bold"
-                : ""
-            }`}
+    <div className="flex">
+      {/* Coluna lateral dinâmica das semanas */}
+      <div className="flex flex-col mr-4 justify-center">
+        {semanasDoMes.map((_, i) => (
+          <button
+            key={i}
+            className="p-2 bg-gray-200 hover:bg-gray-300 rounded text-sm h-26 mt-1"
+            onClick={() => navigate(`/planner-semanal/${i + 1}`)}
           >
-            {dia.getDate()}
+            sem {i + 1}
+          </button>
+        ))}
+      </div>
+
+      <div className="flex-1">
+        {/* Cabeçalho */}
+        <div className="grid grid-cols-7 gap-2 mb-2">
+          {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((dia, i) => (
+            <div key={i} className="text-center font-semibold text-gray-700">
+              {dia}
+            </div>
+          ))}
+        </div>
+
+        {/* Dias por semana */}
+        {semanasDoMes.map((semana, i) => (
+          <div key={i} className="grid grid-cols-7 gap-2 mb-2">
+            {semana.map((dia, index) => (
+              <div
+                key={index}
+                className={`border p-4 text-center rounded h-24 ${
+                  dia &&
+                  dia.getDate() === hoje.getDate() &&
+                  dia.getMonth() === hoje.getMonth() &&
+                  dia.getFullYear() === hoje.getFullYear()
+                    ? "bg-green-100 font-bold"
+                    : ""
+                }`}
+              >
+                {dia ? dia.getDate() : ""}
+              </div>
+            ))}
           </div>
-        ) : (
-          <div key={index}></div> // espaço vazio antes do dia 1
-        )
-      )}
+        ))}
+      </div>
     </div>
   );
 }

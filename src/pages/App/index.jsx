@@ -1,7 +1,8 @@
 import { useEffect, useState, useRef } from "react";
-import { Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./style.css";
 import Planner from "../Planner/index";
+import PlannerSemanal from "../PlannerSemanal/index";
 import Home from "../Home";
 import api from "../../services/api";
 
@@ -10,6 +11,7 @@ function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/planner" element={<Planner />} />
+      <Route path="/planner-semanal/:semana" element={<PlannerSemanal />} />
     </Routes>
   );
   //   const [users, setUsers] = useState([]);
