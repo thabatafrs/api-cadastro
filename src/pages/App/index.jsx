@@ -11,7 +11,10 @@ function App() {
     <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/planner" element={<Planner />} />
-      <Route path="/planner-semanal/:semana" element={<PlannerSemanal />} />
+      <Route
+        path="/planner-semanal/:mes/:semana"
+        element={<PlannerSemanal />}
+      />
     </Routes>
   );
   //   const [users, setUsers] = useState([]);

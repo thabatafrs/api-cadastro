@@ -7,6 +7,21 @@ function PlannerMensal({ mes }) {
 
   const navigate = useNavigate();
 
+  const nomesMeses = [
+    "janeiro",
+    "fevereiro",
+    "março",
+    "abril",
+    "maio",
+    "junho",
+    "julho",
+    "agosto",
+    "setembro",
+    "outubro",
+    "novembro",
+    "dezembro",
+  ];
+
   const obterSemanasDoMes = (ano, mes) => {
     const semanas = [];
     const primeiroDia = new Date(ano, mes, 1);
@@ -44,8 +59,10 @@ function PlannerMensal({ mes }) {
         {semanasDoMes.map((_, i) => (
           <button
             key={i}
-            className="p-2 bg-gray-200 hover:bg-gray-300 rounded text-sm h-26 mt-1"
-            onClick={() => navigate(`/planner-semanal/${i + 1}`)}
+            className="p-2 bg-gray-200 hover:bg-gray-300 rounded text-sm h-25 mt-2"
+            onClick={() =>
+              navigate(`/planner-semanal/${nomesMeses[mes]}/${i + 1}`)
+            }
           >
             sem {i + 1}
           </button>
