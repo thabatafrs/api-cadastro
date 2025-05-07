@@ -5,6 +5,11 @@ import "./style.css";
 function Planner() {
   const [mesSelecionado, setMesSelecionado] = useState(new Date().getMonth());
 
+  function Sair() {
+    localStorage.removeItem("token");
+    window.location.href = "/"; // Redireciona para a página de login
+  }
+
   const nomesMeses = [
     "Janeiro",
     "Fevereiro",
@@ -26,6 +31,9 @@ function Planner() {
         <a href="">Home</a>
         <a href="">Estatísticas</a>
         <a href="">Hábitos</a>
+        <a className="text-red-700" onClick={Sair} href="">
+          Sair
+        </a>
       </nav>
 
       <div className="flex justify-center gap-5 items-center m-5">

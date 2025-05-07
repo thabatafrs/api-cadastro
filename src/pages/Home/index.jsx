@@ -1,8 +1,62 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useAuth } from "../../AuthContent"; // importar o contexto
+
+import api from "../../services/api";
+import { useNavigate } from "react-router-dom";
 
 function Home() {
   const [isLogin, setIsLogin] = useState(true);
+  const { login } = useAuth(); // acesso ao login
+  const navigate = useNavigate();
+
+  const inputSenha = useRef();
+  const inputEmail = useRef();
+
+  async function createUsers() {
+    const email = inputEmail.current.value.trim();
+    const senha = inputSenha.current.value.trim();
+
+    if (!email || !senha) {
+      alert("Preencha todos os campos");
+      return;
+    }
+
+    try {
+      await api.post("/usuarios", { email, senha });
+      alert("Usuário cadastrado com sucesso!");
+    } catch (error) {
+      alert(
+        "Erro ao cadastrar usuário: " + error.response?.data?.message ||
+          error.message
+      );
+    }
+
+    inputEmail.current.value = "";
+    inputSenha.current.value = "";
+  }
+
+  async function loginUser() {
+    const email = inputEmail.current.value.trim();
+    const senha = inputSenha.current.value.trim();
+
+    if (!email || !senha) {
+      alert("Preencha todos os campos");
+      return;
+    }
+
+    try {
+      const response = await api.post("/login", { email, senha });
+      const token = response.data.token;
+
+      login(token); // usa o contexto
+      navigate("/planner"); // redireciona
+    } catch (error) {
+      alert(
+        "Login falhou: " + (error.response?.data?.message || error.message)
+      );
+    }
+  }
 
   const variants = {
     hidden: { opacity: 0, x: 100 },
@@ -50,15 +104,21 @@ function Home() {
               >
                 <input
                   className="bg-white p-3 rounded shadow-sm"
+                  ref={inputEmail}
                   type="email"
                   placeholder="Digite o email"
                 />
                 <input
                   className="bg-white p-3 rounded shadow-sm"
+                  ref={inputSenha}
                   type="password"
                   placeholder="Digite a senha"
                 />
-                <button className="bg-green-500 hover:bg-green-600 transition text-white uppercase tracking-wide rounded-full px-6 py-3 mt-4">
+                <button
+                  type="button"
+                  onClick={loginUser}
+                  className="bg-green-500 hover:bg-green-600 transition text-white uppercase tracking-wide rounded-full px-6 py-3 mt-4"
+                >
                   entrar
                 </button>
               </motion.form>
@@ -76,13 +136,19 @@ function Home() {
                   className="bg-white p-3 rounded shadow-sm"
                   type="email"
                   placeholder="Digite o email"
+                  ref={inputEmail}
                 />
                 <input
                   className="bg-white p-3 rounded shadow-sm"
                   type="password"
                   placeholder="Digite a senha"
+                  ref={inputSenha}
                 />
-                <button className="bg-red-500 hover:bg-red-600 transition text-white uppercase tracking-wide rounded-full px-6 py-3 mt-4">
+                <button
+                  type="button"
+                  onClick={createUsers}
+                  className="bg-red-500 hover:bg-red-600 transition text-white uppercase tracking-wide rounded-full px-6 py-3 mt-4"
+                >
                   Iniciar jornada
                 </button>
               </motion.form>
@@ -104,7 +170,6 @@ function Home() {
       </section>
     </main>
   );
-  s;
 }
 
 export default Home;
