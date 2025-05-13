@@ -25,17 +25,19 @@ function PlannerMensal({ mes }) {
     }
 
     try {
-      await api.post("/eventos", {
+      const response = await api.post("/eventos", {
         nome,
         horario,
-        data: diaSelecionado.toISOString(), // campo certo pro schema
+        data: diaSelecionado.toISOString(),
       });
+
       alert("Evento cadastrado com sucesso!");
+      setEventos((prevEventos) => [...prevEventos, response.data]);
       setMostrarPopup(false);
     } catch (error) {
       alert(
-        "Erro ao cadastrar usuário: " + error.response?.data?.message ||
-          error.message
+        "Erro ao cadastrar evento: " +
+          (error.response?.data?.message || error.message)
       );
     }
   }
@@ -97,17 +99,15 @@ function PlannerMensal({ mes }) {
   }, [mes]);
 
   useEffect(() => {
-    const token = localStorage.getItem("token"); // Recupera o token JWT
+    const token = localStorage.getItem("token");
     if (!token) {
       console.error("User not authenticated");
       return;
     }
 
-    const decodedToken = jwt_decode(token); // Decodifica o token para acessar os dados
-    console.log(decodedToken); // Verifique o conteúdo do token
-    const userId = decodedToken.id; // Asegure-se de que 'userId' seja o nome correto no token
+    const decodedToken = jwt_decode(token);
+    const userId = decodedToken.id;
 
-    // Se o userId for indefinido ou nulo, interrompa a requisição
     if (!userId) {
       console.error("User ID is undefined or missing");
       return;
