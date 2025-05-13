@@ -1,9 +1,12 @@
 import { useState, useEffect, useRef } from "react";
+import jwt_decode from "jwt-decode"; // Importação padrão
+
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 
 function PlannerMensal({ mes }) {
   const [semanasDoMes, setSemanasDoMes] = useState([]);
+  const [eventos, setEventos] = useState([]);
   const [hoje] = useState(new Date());
   const [mostrarPopup, setMostrarPopup] = useState(false);
   const [diaSelecionado, setDiaSelecionado] = useState(null);
@@ -93,6 +96,36 @@ function PlannerMensal({ mes }) {
     setSemanasDoMes(semanas);
   }, [mes]);
 
+  useEffect(() => {
+    const token = localStorage.getItem("token"); // Recupera o token JWT
+    if (!token) {
+      console.error("User not authenticated");
+      return;
+    }
+
+    const decodedToken = jwt_decode(token); // Decodifica o token para acessar os dados
+    console.log(decodedToken); // Verifique o conteúdo do token
+    const userId = decodedToken.id; // Asegure-se de que 'userId' seja o nome correto no token
+
+    // Se o userId for indefinido ou nulo, interrompa a requisição
+    if (!userId) {
+      console.error("User ID is undefined or missing");
+      return;
+    }
+
+    // Função para buscar os eventos
+    async function fetchEventos(userId) {
+      try {
+        const response = await api.get(`/eventos/${userId}`); // Corrigido o caminho da API
+        setEventos(response.data);
+      } catch (error) {
+        console.error("Erro ao buscar eventos:", error);
+      }
+    }
+
+    fetchEventos(userId); // Passando o userId para a função fetchEventos
+  }, []); // O array vazio [] garante que a função execute apenas uma vez após o componente ser montado
+
   return (
     <div className="flex">
       {/* Coluna lateral dinâmica das semanas */}
@@ -123,28 +156,58 @@ function PlannerMensal({ mes }) {
         {/* Dias por semana */}
         {semanasDoMes.map((semana, i) => (
           <div key={i} className="grid grid-cols-7 gap-2 mb-2">
-            {semana.map((dia, index) => (
-              <div
-                key={index}
-                className={`border p-4 text-center rounded h-24 flex justify-between ${
+            {semana.map((dia, index) => {
+              // Filtra os eventos desse dia
+              const eventosDoDia = eventos.filter((evento) => {
+                const dataEvento = new Date(evento.data);
+                return (
                   dia &&
-                  dia.getDate() === hoje.getDate() &&
-                  dia.getMonth() === hoje.getMonth() &&
-                  dia.getFullYear() === hoje.getFullYear()
-                    ? "bg-green-100 font-bold"
-                    : ""
-                }`}
-              >
-                {dia ? dia.getDate() : ""}
-                <button
-                  type="button"
-                  className="bg-green-500 text-white rounded-sm h-5 flex items-center cursor-pointer"
-                  onClick={() => abrirPopup(dia)}
+                  dataEvento.getDate() === dia.getDate() &&
+                  dataEvento.getMonth() === dia.getMonth() &&
+                  dataEvento.getFullYear() === dia.getFullYear()
+                );
+              });
+
+              return (
+                <div
+                  key={index}
+                  className={`border p-2 text-center rounded h-24 flex flex-col justify-between ${
+                    dia &&
+                    dia.getDate() === hoje.getDate() &&
+                    dia.getMonth() === hoje.getMonth() &&
+                    dia.getFullYear() === hoje.getFullYear()
+                      ? "bg-green-100 font-bold"
+                      : ""
+                  }`}
                 >
-                  +
-                </button>
-              </div>
-            ))}
+                  {/* Número do dia */}
+                  <div className="flex justify-between items-center mb-1">
+                    <span>{dia ? dia.getDate() : ""}</span>
+                    {dia && (
+                      <button
+                        type="button"
+                        className="bg-green-500 text-white rounded-sm h-5 w-5 flex items-center justify-center cursor-pointer text-sm"
+                        onClick={() => abrirPopup(dia)}
+                      >
+                        +
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Lista de eventos */}
+                  <div className="overflow-auto text-xs">
+                    {eventosDoDia.map((evento, i) => (
+                      <div
+                        key={i}
+                        className="bg-blue-100 rounded px-1 mb-1 truncate"
+                      >
+                        {evento.nome} ({evento.horario})
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         ))}
       </div>
