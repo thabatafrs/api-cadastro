@@ -138,6 +138,8 @@ function PlannerMensal({ mes }) {
       return;
     }
 
+    console.log("Token enviado:", token); // Verifique o token antes de enviar
+
     const decodedToken = jwt_decode(token);
     const userId = decodedToken.id;
 
@@ -146,18 +148,25 @@ function PlannerMensal({ mes }) {
       return;
     }
 
-    // Função para buscar os eventos
-    async function fetchEventos(userId) {
+    async function fetchEventos() {
       try {
-        const response = await api.get(`/eventos/${userId}`); // Corrigido o caminho da API
-        setEventos(response.data);
+        const response = await api.get("/eventos", {
+          headers: {
+            Authorization: `Bearer ${token}`, // Adiciona o token JWT no cabeçalho
+          },
+        });
+        console.log(response.data);
+        setEventos(response.data); // Adicionar esta linha
       } catch (error) {
-        console.error("Erro ao buscar eventos:", error);
+        console.error(
+          "Erro ao buscar eventos:",
+          error.response?.data || error.message
+        );
       }
     }
 
-    fetchEventos(userId); // Passando o userId para a função fetchEventos
-  }, []); // O array vazio [] garante que a função execute apenas uma vez após o componente ser montado
+    fetchEventos();
+  }, []);
 
   return (
     <div className="flex">
