@@ -13,6 +13,7 @@ function PlannerMensal({ mes }) {
   const [diasSemanaSelecionados, setDiasSemanaSelecionados] = useState([]);
   const [eventoSelecionado, setEventoSelecionado] = useState(null);
   const [mostrarPopupEditar, setMostrarPopupEditar] = useState(false);
+  const [habitos, setHabitos] = useState([]);
 
   const inputNomeEvento = useRef();
   const inputHorarioEvento = useRef();
@@ -37,11 +38,11 @@ function PlannerMensal({ mes }) {
         dias: diasSemanaSelecionados,
       });
 
-      alert("habito criado");
+      setHabitos((prevHabitos) => [...prevHabitos, response.data]);
       setMostrarPopup(false);
     } catch (error) {
       alert(
-        "Erro ao cadastrar evento: " +
+        "Erro ao cadastrar hábito: " +
           (error.response?.data?.message || error.message)
       );
     }
@@ -63,7 +64,6 @@ function PlannerMensal({ mes }) {
         data: diaSelecionado.toISOString(),
       });
 
-      alert("Evento cadastrado com sucesso!");
       setEventos((prevEventos) => [...prevEventos, response.data]);
       setMostrarPopup(false);
     } catch (error) {
@@ -76,14 +76,20 @@ function PlannerMensal({ mes }) {
 
   async function editarEvento() {
     try {
-      await api.put(`/eventos/${eventoSelecionado.id}`, {
+      const response = await api.put(`/eventos/${eventoSelecionado.id}`, {
         nome: eventoSelecionado.nome,
         horario: eventoSelecionado.horario,
       });
 
-      alert("Evento atualizado!");
+      const eventoAtualizado = response.data;
+
+      // Atualiza o estado dos eventos localmente
+      setEventos((prevEventos) =>
+        prevEventos.map((evento) =>
+          evento.id === eventoAtualizado.id ? eventoAtualizado : evento
+        )
+      );
       setMostrarPopupEditar(false);
-      window.location.reload();
     } catch (error) {
       alert("Erro ao editar evento");
     }
@@ -97,9 +103,12 @@ function PlannerMensal({ mes }) {
 
     try {
       await api.delete(`/eventos/${eventoSelecionado.id}`);
-      alert("Evento excluído!");
+
+      // Atualiza o estado removendo o evento excluído
+      setEventos((prevEventos) =>
+        prevEventos.filter((evento) => evento.id !== eventoSelecionado.id)
+      );
       setMostrarPopupEditar(false);
-      window.location.reload();
     } catch (error) {
       alert("Erro ao excluir evento");
     }
@@ -195,7 +204,25 @@ function PlannerMensal({ mes }) {
       }
     }
 
+    async function fetchHabitos() {
+      try {
+        const response = await api.get("/habito", {
+          headers: {
+            Authorization: `Bearer ${token}`, // Adiciona o token JWT no cabeçalho
+          },
+        });
+        console.log(response.data);
+        setHabitos(response.data);
+      } catch (error) {
+        console.error(
+          "Erro ao buscar hábitos:",
+          error.response?.data || error.message
+        );
+      }
+    }
+
     fetchEventos();
+    fetchHabitos();
   }, []);
 
   return (
@@ -218,7 +245,7 @@ function PlannerMensal({ mes }) {
       <div className="flex-1">
         {/* Cabeçalho */}
         <div className="grid grid-cols-7 gap-2 mb-2">
-          {["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sáb"].map((dia, i) => (
+          {diasDaSemana.map((dia, i) => (
             <div key={i} className="text-center font-semibold text-gray-700">
               {dia}
             </div>
@@ -239,6 +266,12 @@ function PlannerMensal({ mes }) {
                   dataEvento.getFullYear() === dia.getFullYear()
                 );
               });
+
+              // Hábitos recorrentes do dia da semana (seg, ter, etc)
+              const nomeDia = dia ? diasDaSemana[dia.getDay()] : "";
+              const habitosDoDia = habitos.filter((habito) =>
+                habito.dias.includes(nomeDia)
+              );
 
               return (
                 <div
@@ -278,6 +311,15 @@ function PlannerMensal({ mes }) {
                         }}
                       >
                         {evento.nome} ({evento.horario})
+                      </div>
+                    ))}
+
+                    {habitosDoDia.map((habito) => (
+                      <div
+                        key={habito.id}
+                        className="bg-yellow-100 rounded px-1 mb-1 truncate"
+                      >
+                        {habito.nome}
                       </div>
                     ))}
                   </div>
