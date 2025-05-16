@@ -16,6 +16,36 @@ function PlannerMensal({ mes }) {
 
   const inputNomeEvento = useRef();
   const inputHorarioEvento = useRef();
+  const inputNomeHabito = useRef();
+
+  async function createHabito() {
+    const nome = inputNomeHabito.current.value.trim();
+
+    if (!nome || !diasSemanaSelecionados) {
+      alert("Preencha todos os campos");
+      return;
+    }
+
+    try {
+      const response = await api.post("/habito", {
+        nome,
+        dias: diasSemanaSelecionados,
+      });
+
+      console.log("Enviando hábito:", {
+        nome,
+        dias: diasSemanaSelecionados,
+      });
+
+      alert("habito criado");
+      setMostrarPopup(false);
+    } catch (error) {
+      alert(
+        "Erro ao cadastrar evento: " +
+          (error.response?.data?.message || error.message)
+      );
+    }
+  }
 
   async function createEvento() {
     const nome = inputNomeEvento.current.value.trim();
@@ -297,15 +327,7 @@ function PlannerMensal({ mes }) {
                     <input
                       className="border p-2 rounded w-full"
                       placeholder=""
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-3">
-                    <label htmlFor="">Horário:</label>
-                    <input
-                      className="border p-2 rounded"
-                      placeholder=""
-                      type="time"
+                      ref={inputNomeHabito}
                     />
                   </div>
 
@@ -342,7 +364,10 @@ function PlannerMensal({ mes }) {
                     </div>
                   </div>
 
-                  <button className="bg-green-500 text-white px-4 py-2 mt-4 rounded w-full ">
+                  <button
+                    className="bg-green-500 text-white px-4 py-2 mt-4 rounded w-full"
+                    onClick={createHabito}
+                  >
                     salvar
                   </button>
                   <button
