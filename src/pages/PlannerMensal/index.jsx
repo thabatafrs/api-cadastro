@@ -13,6 +13,10 @@ function PlannerMensal({ mes }) {
   const [diasSemanaSelecionados, setDiasSemanaSelecionados] = useState([]);
   const [eventoSelecionado, setEventoSelecionado] = useState(null);
   const [mostrarPopupEditar, setMostrarPopupEditar] = useState(false);
+
+  const [habitoSelecionado, setHabitoSelecionado] = useState(null);
+  const [mostrarPopupEditarHab, setMostrarPopupEditarHab] = useState(false);
+
   const [habitos, setHabitos] = useState([]);
 
   const inputNomeEvento = useRef();
@@ -44,6 +48,51 @@ function PlannerMensal({ mes }) {
       alert(
         "Erro ao cadastrar hábito: " +
           (error.response?.data?.message || error.message)
+      );
+    }
+  }
+
+  async function editHabito() {
+    try {
+      const response = await api.put(`/habito/${habitoSelecionado.id}`, {
+        nome: habitoSelecionado.nome,
+        dias: diasSemanaSelecionados,
+      });
+
+      const HabitoAtualizado = response.data;
+
+      setHabitos((prevHabitos) =>
+        prevHabitos.map((habito) =>
+          habito.id === HabitoAtualizado.id ? HabitoAtualizado : habito
+        )
+      );
+
+      setMostrarPopupEditarHab(false);
+    } catch (error) {
+      console.error(
+        "Erro ao editar hábito:",
+        error.response?.data || error.message
+      );
+    }
+  }
+
+  async function excluirHabito() {
+    const confirmacao = window.confirm(
+      "Tem certeza que deseja excluir este evento?"
+    );
+    if (!confirmacao) return;
+
+    try {
+      await api.delete(`/habito/${habitoSelecionado.id}`);
+
+      setHabitos((prevHabitos) =>
+        prevHabitos.filter((habito) => habito.id !== habitoSelecionado.id)
+      );
+      setMostrarPopupEditarHab(false);
+    } catch (error) {
+      console.error(
+        "Erro ao excluir hábito:",
+        error.response?.data || error.message
       );
     }
   }
@@ -163,6 +212,12 @@ function PlannerMensal({ mes }) {
 
     return semanas;
   };
+
+  useEffect(() => {
+    if (mostrarPopupEditarHab && habitoSelecionado) {
+      setDiasSemanaSelecionados(habitoSelecionado.dias || []);
+    }
+  }, [mostrarPopupEditarHab, habitoSelecionado]);
 
   useEffect(() => {
     const ano = new Date().getFullYear();
@@ -318,6 +373,10 @@ function PlannerMensal({ mes }) {
                       <div
                         key={habito.id}
                         className="bg-yellow-100 rounded px-1 mb-1 truncate"
+                        onClick={() => {
+                          setHabitoSelecionado(habito);
+                          setMostrarPopupEditarHab(true);
+                        }}
                       >
                         {habito.nome}
                       </div>
@@ -507,6 +566,72 @@ function PlannerMensal({ mes }) {
               <button
                 className="bg-gray-300 text-black px-4 py-2 rounded"
                 onClick={() => setMostrarPopupEditar(false)}
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {mostrarPopupEditarHab && habitoSelecionado && (
+        <div className="fixed inset-0 bg-gray-100/75 flex justify-center items-center z-50">
+          <div className="bg-white p-6 rounded shadow-md w-96">
+            <h2 className="text-xl font-semibold mb-4">Editar Hábito</h2>
+
+            <label className="block mb-2">Nome:</label>
+            <input
+              type="text"
+              className="w-full p-2 border rounded mb-4"
+              value={habitoSelecionado.nome}
+              onChange={(e) =>
+                setHabitoSelecionado({
+                  ...habitoSelecionado,
+                  nome: e.target.value,
+                })
+              }
+            />
+
+            <label className="block mb-2">Dias:</label>
+            {diasDaSemana.map((dia, index) => (
+              <label key={index} className="flex items-center gap-1">
+                <input
+                  type="checkbox"
+                  value={dia}
+                  checked={diasSemanaSelecionados.includes(dia)}
+                  onChange={(e) => {
+                    const { value, checked } = e.target;
+                    if (checked) {
+                      setDiasSemanaSelecionados((prev) => [...prev, value]);
+                    } else {
+                      setDiasSemanaSelecionados((prev) =>
+                        prev.filter((d) => d !== value)
+                      );
+                    }
+                  }}
+                />
+                {dia}
+              </label>
+            ))}
+
+            <div className="flex justify-between">
+              <button
+                className="bg-blue-500 text-white px-4 py-2 rounded"
+                onClick={editHabito}
+              >
+                Salvar
+              </button>
+
+              <button
+                className="bg-red-500 text-white px-4 py-2 rounded"
+                onClick={excluirHabito}
+              >
+                Excluir
+              </button>
+
+              <button
+                className="bg-gray-300 text-black px-4 py-2 rounded"
+                onClick={() => setMostrarPopupEditarHab(false)}
               >
                 Cancelar
               </button>
