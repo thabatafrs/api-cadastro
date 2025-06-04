@@ -3,7 +3,9 @@ import PlannerMensal from "../PlannerMensal";
 import "./style.css";
 
 function Planner() {
-  const [mesSelecionado, setMesSelecionado] = useState(new Date().getMonth());
+  const hoje = new Date();
+  const [mesSelecionado, setMesSelecionado] = useState(hoje.getMonth());
+  const [anoSelecionado, setAnoSelecionado] = useState(hoje.getFullYear());
 
   function Sair() {
     localStorage.removeItem("token");
@@ -50,10 +52,21 @@ function Planner() {
             </option>
           ))}
         </select>
+        <select
+          className="p-2"
+          value={anoSelecionado}
+          onChange={(e) => setAnoSelecionado(Number(e.target.value))}
+        >
+          {[2023, 2024, 2025, 2026].map((ano) => (
+            <option key={ano} value={ano}>
+              {ano}
+            </option>
+          ))}
+        </select>
       </div>
 
       {/* Passa o mês como prop */}
-      <PlannerMensal mes={mesSelecionado} />
+      <PlannerMensal mes={mesSelecionado} ano={anoSelecionado} />
     </div>
   );
 }

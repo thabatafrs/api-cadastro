@@ -4,7 +4,7 @@ import jwt_decode from "jwt-decode"; // Importação padrão
 import { useNavigate } from "react-router-dom";
 import api from "../../services/api";
 
-function PlannerMensal({ mes }) {
+function PlannerMensal({ mes, ano }) {
   const [semanasDoMes, setSemanasDoMes] = useState([]);
   const [eventos, setEventos] = useState([]);
   const [hoje] = useState(new Date());
@@ -12,6 +12,11 @@ function PlannerMensal({ mes }) {
   const [diaSelecionado, setDiaSelecionado] = useState(null);
   const [diasSemanaSelecionados, setDiasSemanaSelecionados] = useState([]);
   const [eventoSelecionado, setEventoSelecionado] = useState(null);
+  const [mapaRegistros, setMapaRegistros] = useState({});
+
+  const mesAtual = mes;
+  const anoAtual = ano;
+
   const [mostrarPopupEditar, setMostrarPopupEditar] = useState(false);
 
   const [habitoSelecionado, setHabitoSelecionado] = useState(null);
@@ -22,6 +27,38 @@ function PlannerMensal({ mes }) {
   const inputNomeEvento = useRef();
   const inputHorarioEvento = useRef();
   const inputNomeHabito = useRef();
+
+  const toggleHabito = async (habitoId, data) => {
+    try {
+      const response = await api.post("/habitoRegistro", { habitoId, data });
+
+      const registroAtualizado = response.data; // vai conter info do hábito ou null se removeu
+
+      setMapaRegistros((prevMapa) => {
+        const novaData = data.split("T")[0];
+
+        const copiaMapa = { ...prevMapa };
+        const setDia = new Set(copiaMapa[novaData] || []);
+
+        // Se voltou null, significa que foi desmarcado
+        if (!registroAtualizado) {
+          setDia.delete(habitoId);
+        } else {
+          setDia.add(habitoId);
+        }
+
+        return {
+          ...copiaMapa,
+          [novaData]: setDia,
+        };
+      });
+    } catch (error) {
+      console.error(
+        "Erro ao alternar hábito:",
+        error.response?.data || error.message
+      );
+    }
+  };
 
   async function createHabito() {
     const nome = inputNomeHabito.current.value.trim();
@@ -220,10 +257,9 @@ function PlannerMensal({ mes }) {
   }, [mostrarPopupEditarHab, habitoSelecionado]);
 
   useEffect(() => {
-    const ano = new Date().getFullYear();
-    const semanas = obterSemanasDoMes(ano, mes);
+    const semanas = obterSemanasDoMes(anoAtual, mesAtual);
     setSemanasDoMes(semanas);
-  }, [mes]);
+  }, [mesAtual, anoAtual]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -231,8 +267,6 @@ function PlannerMensal({ mes }) {
       console.error("User not authenticated");
       return;
     }
-
-    console.log("Token enviado:", token); // Verifique o token antes de enviar
 
     const decodedToken = jwt_decode(token);
     const userId = decodedToken.id;
@@ -246,11 +280,10 @@ function PlannerMensal({ mes }) {
       try {
         const response = await api.get("/eventos", {
           headers: {
-            Authorization: `Bearer ${token}`, // Adiciona o token JWT no cabeçalho
+            Authorization: `Bearer ${token}`,
           },
         });
-        console.log(response.data);
-        setEventos(response.data); // Adicionar esta linha
+        setEventos(response.data);
       } catch (error) {
         console.error(
           "Erro ao buscar eventos:",
@@ -263,11 +296,46 @@ function PlannerMensal({ mes }) {
       try {
         const response = await api.get("/habito", {
           headers: {
-            Authorization: `Bearer ${token}`, // Adiciona o token JWT no cabeçalho
+            Authorization: `Bearer ${token}`,
           },
         });
-        console.log(response.data);
-        setHabitos(response.data);
+
+        const habitos = response.data;
+
+        // Usar mesAtual e anoAtual para calcular o intervalo corretamente
+        const dataInicio = `${anoAtual}-${String(mesAtual + 1).padStart(
+          2,
+          "0"
+        )}-01`;
+        const ultimoDia = new Date(anoAtual, mesAtual + 1, 0).getDate();
+        const dataFim = `${anoAtual}-${String(mesAtual + 1).padStart(
+          2,
+          "0"
+        )}-${String(ultimoDia).padStart(2, "0")}`;
+
+        const responseRegistros = await api.get(
+          `/habitoRegistro?dataInicio=${dataInicio}&dataFim=${dataFim}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        const registros = responseRegistros.data;
+
+        setHabitos(habitos);
+
+        const mapa = {};
+        registros.forEach((r) => {
+          const data = r.data.split("T")[0];
+          if (!mapa[data]) {
+            mapa[data] = new Set();
+          }
+          mapa[data].add(r.habitoId);
+        });
+
+        setMapaRegistros(mapa);
       } catch (error) {
         console.error(
           "Erro ao buscar hábitos:",
@@ -278,7 +346,7 @@ function PlannerMensal({ mes }) {
 
     fetchEventos();
     fetchHabitos();
-  }, []);
+  }, [mesAtual, anoAtual]); // <- Agora reage a mudança de mês/ano
 
   return (
     <div className="flex">
@@ -324,8 +392,9 @@ function PlannerMensal({ mes }) {
 
               // Hábitos recorrentes do dia da semana (seg, ter, etc)
               const nomeDia = dia ? diasDaSemana[dia.getDay()] : "";
-              const habitosDoDia = habitos.filter((habito) =>
-                habito.dias.includes(nomeDia)
+              const habitosDoDia = habitos.filter(
+                (habito) =>
+                  Array.isArray(habito.dias) && habito.dias.includes(nomeDia)
               );
 
               return (
@@ -369,18 +438,35 @@ function PlannerMensal({ mes }) {
                       </div>
                     ))}
 
-                    {habitosDoDia.map((habito) => (
-                      <div
-                        key={habito.id}
-                        className="bg-yellow-100 rounded px-1 mb-1 truncate"
-                        onClick={() => {
-                          setHabitoSelecionado(habito);
-                          setMostrarPopupEditarHab(true);
-                        }}
-                      >
-                        {habito.nome}
-                      </div>
-                    ))}
+                    {habitosDoDia.map((habito) => {
+                      const dataString = dia.toISOString().split("T")[0];
+                      const foiFeito =
+                        mapaRegistros[dataString]?.has(habito.id) || false;
+
+                      return (
+                        <div
+                          key={habito.id}
+                          className="flex items-center gap-1 mb-1"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={foiFeito}
+                            onChange={() =>
+                              toggleHabito(habito.id, dia.toISOString())
+                            }
+                          />
+                          <div
+                            className="bg-yellow-100 rounded px-1 truncate cursor-pointer"
+                            onClick={() => {
+                              setHabitoSelecionado(habito);
+                              setMostrarPopupEditarHab(true);
+                            }}
+                          >
+                            {habito.nome}
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               );
