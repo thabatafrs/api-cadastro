@@ -3,6 +3,7 @@ import Home from "../Home";
 import Planner from "../Planner";
 import PlannerSemanal from "../PlannerSemanal";
 import PrivateRoute from "../../components/PrivateRoute";
+import Estatisticas from "../Estatisticas";
 
 function App() {
   return (
@@ -21,6 +22,14 @@ function App() {
         element={
           <PrivateRoute>
             <PlannerSemanal />
+          </PrivateRoute>
+        }
+      />
+      <Route
+        path="/estatisticas"
+        element={
+          <PrivateRoute>
+            <Estatisticas />
           </PrivateRoute>
         }
       />
