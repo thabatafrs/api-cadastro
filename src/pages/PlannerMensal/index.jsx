@@ -400,7 +400,7 @@ function PlannerMensal({ mes, ano }) {
               return (
                 <div
                   key={index}
-                  className={`border p-2 text-center rounded h-24 flex flex-col justify-between ${
+                  className={`border p-2 text-center rounded h-30 flex flex-col justify-between ${
                     dia &&
                     dia.getDate() === hoje.getDate() &&
                     dia.getMonth() === hoje.getMonth() &&
@@ -424,7 +424,7 @@ function PlannerMensal({ mes, ano }) {
                   </div>
 
                   {/* Lista de eventos */}
-                  <div className="overflow-auto text-xs">
+                  <div className="overflow-auto text-xs ">
                     {eventosDoDia.map((evento) => (
                       <div
                         key={evento.id}
@@ -446,7 +446,7 @@ function PlannerMensal({ mes, ano }) {
                       return (
                         <div
                           key={habito.id}
-                          className="flex items-center gap-1 mb-1"
+                          className="flex items-center rounded gap-1 mb-1 bg-yellow-100 justify-center"
                         >
                           <input
                             type="checkbox"
@@ -456,7 +456,7 @@ function PlannerMensal({ mes, ano }) {
                             }
                           />
                           <div
-                            className="bg-yellow-100 rounded px-1 truncate cursor-pointer"
+                            className="bg-yellow-100 cursor-pointer"
                             onClick={() => {
                               setHabitoSelecionado(habito);
                               setMostrarPopupEditarHab(true);
