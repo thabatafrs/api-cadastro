@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
+import { Link } from "react-router-dom";
+
 import jwt_decode from "jwt-decode";
 import {
   BarChart,
@@ -21,6 +23,11 @@ function Estatisticas() {
   const [mesSelecionado, setMesSelecionado] = useState(new Date().getMonth());
   const [rankingTotalFeito, setRankingTotalFeito] = useState([]);
   const [rankingPercentual, setRankingPercentual] = useState([]);
+
+  function Sair() {
+    localStorage.removeItem("token");
+    window.location.href = "/"; // Redireciona para a página de login
+  }
 
   function calcularMaiorSequencia(registros) {
     if (registros.length === 0) return 0;
@@ -199,7 +206,15 @@ function Estatisticas() {
   const COLORS = ["#0088FE", "#FF8042"];
 
   return (
-    <div>
+    <div className="container mx-auto px-6 py-8">
+      <nav className="flex gap-7 mb-6">
+        <Link to="/planner">Home</Link>
+        <Link to="/estatisticas">Estatísticas</Link>
+        <a href="">Hábitos</a>
+        <a className="text-red-700" onClick={Sair} href="">
+          Sair
+        </a>
+      </nav>
       <h2 className="text-xl font-bold mb-4">Estatísticas de Hábitos</h2>
       <div className="mb-4">
         <label htmlFor="mes" className="mr-2 font-medium">
@@ -218,18 +233,25 @@ function Estatisticas() {
           ))}
         </select>
 
-        <div>
-          <h3>Ranking por Total Feito</h3>
-          <ol>
-            {rankingTotalFeito.map(({ nome, totalFeito }) => (
-              <li key={nome}>
-                {nome}: {totalFeito} vezes
-              </li>
-            ))}
-          </ol>
+        <div className="mt-8">
+          <h3 className="text-lg font-semibold mb-4">
+            Ranking por Total Feito
+          </h3>
+          <BarChart
+            width={600}
+            height={300}
+            data={rankingTotalFeito}
+            layout="vertical"
+            margin={{ top: 20, right: 30, left: 100, bottom: 20 }}
+          >
+            <XAxis type="number" allowDecimals={false} />
+            <YAxis dataKey="nome" type="category" width={100} />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="totalFeito" fill="#82ca9d" />
+          </BarChart>
         </div>
       </div>
-
       {Object.entries(estatisticas).map(([nome, dados]) => {
         // Prepara dados para o gráfico de barras
         const dadosBarra = dados.diasDaSemana.map((qtd, i) => ({
@@ -267,7 +289,7 @@ function Estatisticas() {
 
             <p>Maior sequência consecutiva: {dados.maiorSequencia || 0} dias</p>
 
-            <div className="mt-4 flex flex-wrap gap-6 justify-start">
+            <div className="mt-4 flex flex-wrap gap-15 justify-start">
               {/* Gráfico de Barras */}
               <BarChart width={350} height={250} data={dadosBarra}>
                 <XAxis dataKey="dia" />
@@ -278,7 +300,7 @@ function Estatisticas() {
               </BarChart>
 
               {/* Gráfico de Pizza */}
-              <PieChart width={250} height={250}>
+              <PieChart width={500} height={250}>
                 <Pie
                   data={dadosPizza}
                   dataKey="value"

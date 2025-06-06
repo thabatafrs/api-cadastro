@@ -1,6 +1,7 @@
 import { useState } from "react";
 import PlannerMensal from "../PlannerMensal";
 import "./style.css";
+import { Link } from "react-router-dom";
 
 function Planner() {
   const hoje = new Date();
@@ -30,8 +31,8 @@ function Planner() {
   return (
     <div className="container mx-auto px-6 py-8">
       <nav className="flex gap-7 mb-6">
-        <a href="">Home</a>
-        <a href="">Estatísticas</a>
+        <Link to="/">Home</Link>
+        <Link to="/estatisticas">Estatísticas</Link>
         <a href="">Hábitos</a>
         <a className="text-red-700" onClick={Sair} href="">
           Sair
