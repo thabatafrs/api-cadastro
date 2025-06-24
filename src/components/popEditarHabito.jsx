@@ -32,28 +32,30 @@ export default function PopupEditarHabito({
         />
 
         <label className="block mb-2">Dias:</label>
-        {diasDaSemana.map((dia, index) => (
-          <label key={index} className="flex items-center gap-1">
-            <input
-              type="checkbox"
-              value={dia}
-              checked={diasSemanaSelecionados.includes(dia)}
-              onChange={(e) => {
-                const { value, checked } = e.target;
-                if (checked) {
-                  setDiasSemanaSelecionados((prev) => [...prev, value]);
-                } else {
-                  setDiasSemanaSelecionados((prev) =>
-                    prev.filter((d) => d !== value)
-                  );
-                }
-              }}
-            />
-            {dia}
-          </label>
-        ))}
+        <div className="grid grid-cols-4 gap-2 text-sm">
+          {diasDaSemana.map((dia, index) => (
+            <label key={index} className="flex items-center gap-1">
+              <input
+                type="checkbox"
+                value={dia}
+                checked={diasSemanaSelecionados.includes(dia)}
+                onChange={(e) => {
+                  const { value, checked } = e.target;
+                  if (checked) {
+                    setDiasSemanaSelecionados((prev) => [...prev, value]);
+                  } else {
+                    setDiasSemanaSelecionados((prev) =>
+                      prev.filter((d) => d !== value)
+                    );
+                  }
+                }}
+              />
+              {dia}
+            </label>
+          ))}
+        </div>
 
-        <div className="flex justify-between">
+        <div className="flex justify-between mt-5">
           <button
             className="bg-blue-500 text-white px-4 py-2 rounded"
             onClick={editHabito}

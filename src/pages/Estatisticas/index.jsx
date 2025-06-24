@@ -206,8 +206,8 @@ function Estatisticas() {
   const COLORS = ["#0088FE", "#FF8042"];
 
   return (
-    <div className="container mx-auto px-6 py-8">
-      <nav className="flex gap-7 mb-6">
+    <div className="container mx-auto py-8">
+      <nav className="flex justify-center sm:justify-start gap-7 mb-6">
         <Link to="/planner">Home</Link>
         <Link to="/estatisticas">Estatísticas</Link>
         <a href="">Hábitos</a>
@@ -215,8 +215,8 @@ function Estatisticas() {
           Sair
         </a>
       </nav>
-      <h2 className="text-xl font-bold mb-4">Estatísticas de Hábitos</h2>
-      <div className="mb-4">
+      <div className="flex flex-col justify-center gap-5 items-center m-5">
+        <h2 className="text-2xl font-bold">Estatísticas de Hábitos</h2>
         <label htmlFor="mes" className="mr-2 font-medium">
           Selecionar mês:
         </label>
@@ -232,26 +232,24 @@ function Estatisticas() {
             </option>
           ))}
         </select>
-
-        <div className="mt-8">
-          <h3 className="text-lg font-semibold mb-4">
-            Ranking por Total Feito
-          </h3>
-          <BarChart
-            width={600}
-            height={300}
-            data={rankingTotalFeito}
-            layout="vertical"
-            margin={{ top: 20, right: 30, left: 100, bottom: 20 }}
-          >
-            <XAxis type="number" allowDecimals={false} />
-            <YAxis dataKey="nome" type="category" width={100} />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="totalFeito" fill="#82ca9d" />
-          </BarChart>
-        </div>
       </div>
+
+      <div className="mb-8 p-4">
+        <h3 className="text-lg font-semibold mb-4">Ranking por Total Feito</h3>
+        <BarChart
+          width={300}
+          height={300}
+          data={rankingTotalFeito}
+          layout="vertical"
+        >
+          <XAxis type="number" allowDecimals={false} />
+          <YAxis dataKey="nome" type="category" width={100} />
+          <Tooltip />
+          <Legend />
+          <Bar dataKey="totalFeito" fill="#82ca9d" />
+        </BarChart>
+      </div>
+
       {Object.entries(estatisticas).map(([nome, dados]) => {
         // Prepara dados para o gráfico de barras
         const dadosBarra = dados.diasDaSemana.map((qtd, i) => ({

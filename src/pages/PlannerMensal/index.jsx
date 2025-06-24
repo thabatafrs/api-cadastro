@@ -363,12 +363,12 @@ function PlannerMensal({ mes, ano }) {
         mes={mes}
       />
 
-      <div className="flex-1">
+      <div className="flex-1 px-2 sm:px-4">
         <CabecalhoSemana diasDaSemana={diasDaSemana} />
 
         {/* Dias por semana */}
         {semanasDoMes.map((semana, i) => (
-          <div key={i} className="grid grid-cols-7 gap-2 mb-2">
+          <div key={i} className="grid grid-cols-7 gap-1 sm:gap-2 mb-2">
             {semana.map((dia, index) => {
               // Filtra os eventos desse dia
               const eventosDoDia = eventos.filter((evento) => {
@@ -391,7 +391,7 @@ function PlannerMensal({ mes, ano }) {
               return (
                 <div
                   key={index}
-                  className={`border p-2 text-center rounded h-30 flex flex-col justify-between ${
+                  className={`border p-2 text-center rounded flex flex-col justify-between  min-h-[100px] sm:min-h-[140px] ${
                     dia &&
                     dia.getDate() === hoje.getDate() &&
                     dia.getMonth() === hoje.getMonth() &&
@@ -401,12 +401,14 @@ function PlannerMensal({ mes, ano }) {
                   }`}
                 >
                   {/* Número do dia */}
-                  <div className="flex justify-between items-center mb-1">
-                    <span>{dia ? dia.getDate() : ""}</span>
+                  <div className="flex justify-between items-center">
+                    <span className="text-center w-full block font-medium">
+                      {dia ? dia.getDate() : ""}
+                    </span>
                     {dia && (
                       <button
                         type="button"
-                        className="bg-green-500 text-white rounded-sm h-5 w-5 flex items-center justify-center cursor-pointer text-sm"
+                        className="hidden sm:flex bg-green-500 text-white rounded-sm h-5 w-5 items-center justify-center cursor-pointer text-sm"
                         onClick={() => abrirPopup(dia)}
                       >
                         +
@@ -415,20 +417,25 @@ function PlannerMensal({ mes, ano }) {
                   </div>
 
                   {/* Lista de eventos */}
-                  <div className="overflow-auto text-xs ">
+                  <div className="overflow-auto text-sm">
+                    {/* Eventos do dia */}
                     {eventosDoDia.map((evento) => (
                       <div
                         key={evento.id}
-                        className="bg-blue-100 rounded px-1 mb-1 truncate"
+                        className="bg-blue-100 rounded px-1 mb-1 truncate cursor-pointer"
                         onClick={() => {
                           setEventoSelecionado(evento);
                           setMostrarPopupEditar(true);
                         }}
                       >
-                        {evento.nome} ({evento.horario})
+                        <span className="hidden sm:inline">
+                          {evento.nome} ({evento.horario})
+                        </span>
+                        <span className="inline sm:hidden">🔵</span>
                       </div>
                     ))}
 
+                    {/* Hábitos do dia */}
                     {habitosDoDia.map((habito) => {
                       const dataString = dia.toISOString().split("T")[0];
                       const foiFeito =
@@ -437,7 +444,7 @@ function PlannerMensal({ mes, ano }) {
                       return (
                         <div
                           key={habito.id}
-                          className="flex items-center rounded gap-1 mb-1 bg-yellow-100 justify-center"
+                          className="flex items-center justify-center rounded gap-1 mb-1 bg-yellow-100"
                         >
                           <input
                             type="checkbox"
@@ -445,15 +452,21 @@ function PlannerMensal({ mes, ano }) {
                             onChange={() =>
                               toggleHabito(habito.id, dia.toISOString())
                             }
+                            className="hidden sm:inline"
                           />
                           <div
-                            className="bg-yellow-100 cursor-pointer"
+                            className="cursor-pointer"
                             onClick={() => {
                               setHabitoSelecionado(habito);
                               setMostrarPopupEditarHab(true);
                             }}
                           >
-                            {habito.nome}
+                            <span className="hidden sm:inline">
+                              {habito.nome}
+                            </span>
+                            <span className="inline sm:hidden">
+                              {foiFeito ? "✅" : "🟡"}
+                            </span>{" "}
                           </div>
                         </div>
                       );
@@ -481,7 +494,7 @@ function PlannerMensal({ mes, ano }) {
         inputHorarioEvento={inputHorarioEvento}
         createEvento={createEvento}
       />
-      
+
       <PopupEditarEvento
         mostrarPopupEditar={mostrarPopupEditar}
         setMostrarPopupEditar={setMostrarPopupEditar}

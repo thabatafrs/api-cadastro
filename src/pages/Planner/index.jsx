@@ -29,8 +29,8 @@ function Planner() {
   ];
 
   return (
-    <div className="container mx-auto px-6 py-8">
-      <nav className="flex gap-7 mb-6">
+    <div className="container mx-auto py-8">
+      <nav className="flex justify-center sm:justify-start gap-7 mb-6">
         <Link to="/">Home</Link>
         <Link to="/estatisticas">Estatísticas</Link>
         <a href="">Hábitos</a>
