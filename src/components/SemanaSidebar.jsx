@@ -1,6 +1,6 @@
 export default function SemanaSidebar({ semanasDoMes, navigate, nomesMeses, mes }) {
   return (
-    <div className="flex flex-col justify-evenly">
+    <div className="flex flex-col justify-around">
       {semanasDoMes.map((_, i) => (
         <button
           key={i}

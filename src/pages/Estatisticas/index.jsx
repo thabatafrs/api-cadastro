@@ -266,7 +266,7 @@ function Estatisticas() {
         return (
           <motion.div
             key={nome}
-            className="mb-8 p-4 border rounded shadow"
+            className="mb-8 p-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}

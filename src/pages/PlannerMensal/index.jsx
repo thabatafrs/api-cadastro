@@ -391,7 +391,7 @@ function PlannerMensal({ mes, ano }) {
               return (
                 <div
                   key={index}
-                  className={`border p-2 text-center rounded flex flex-col justify-between  min-h-[100px] sm:min-h-[140px] ${
+                  className={`border p-2 text-center rounded flex flex-col min-h-[100px] sm:min-h-[140px] ${
                     dia &&
                     dia.getDate() === hoje.getDate() &&
                     dia.getMonth() === hoje.getMonth() &&
@@ -401,14 +401,14 @@ function PlannerMensal({ mes, ano }) {
                   }`}
                 >
                   {/* Número do dia */}
-                  <div className="flex justify-between items-center">
-                    <span className="text-center w-full block font-medium">
+                  <div className="relative mb-1">
+                    <span className="block text-center font-medium">
                       {dia ? dia.getDate() : ""}
                     </span>
                     {dia && (
                       <button
                         type="button"
-                        className="hidden sm:flex bg-green-500 text-white rounded-sm h-5 w-5 items-center justify-center cursor-pointer text-sm"
+                        className="hidden sm:flex absolute top-0 right-0 bg-green-500 text-white rounded-sm h-5 w-5 items-center justify-center cursor-pointer text-sm"
                         onClick={() => abrirPopup(dia)}
                       >
                         +
