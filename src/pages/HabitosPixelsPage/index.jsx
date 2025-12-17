@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
 import HabitosPixels from "../../components/HabitosPixels";
+import CabecalhoNav from "../../components/cabecalhoNav";
 
 function HabitosPixelsPage() {
   const hoje = new Date();
@@ -41,10 +42,7 @@ function HabitosPixelsPage() {
 
   return (
         <div className="container mx-auto py-8">
-      <nav className="flex justify-center sm:justify-start gap-7 mb-6">
-        <a href="/planner">Planner</a>
-        <a href="/estatisticas">Estatísticas</a>
-      </nav>
+<CabecalhoNav />
     <div className="p-4">
       <h1 className="text-xl font-medium mb-4">Hábitos</h1>
 

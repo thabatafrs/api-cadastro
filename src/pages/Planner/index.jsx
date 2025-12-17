@@ -2,16 +2,14 @@ import { useState } from "react";
 import PlannerMensal from "../PlannerMensal";
 import "./style.css";
 import { Link } from "react-router-dom";
+import CabecalhoNav from "../../components/cabecalhoNav";
 
 function Planner() {
   const hoje = new Date();
   const [mesSelecionado, setMesSelecionado] = useState(hoje.getMonth());
   const [anoSelecionado, setAnoSelecionado] = useState(hoje.getFullYear());
 
-  function Sair() {
-    localStorage.removeItem("token");
-    window.location.href = "/"; // Redireciona para a página de login
-  }
+
 
   const nomesMeses = [
     "Janeiro",
@@ -30,16 +28,7 @@ function Planner() {
 
   return (
     <div className="container mx-auto py-8">
-      <nav className="flex justify-center sm:justify-start gap-7 mb-6">
-        <Link to="/">Home</Link>
-        <Link to="/estatisticas">Estatísticas</Link>
-        <Link to="/year-pixels">Year in Pixels</Link>
-        <Link to="/habitos">Hábitos</Link>
-
-        <a className="text-red-700" onClick={Sair} href="">
-          Sair
-        </a>
-      </nav>
+<CabecalhoNav />
 
       <div className="flex justify-center gap-5 items-center m-5">
         <h1 className="text-2xl font-bold">Planner Mensal</h1>

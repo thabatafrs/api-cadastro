@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import api from "../../services/api";
 import { useAuth } from "../../AuthContent"; 
 import { Link } from "react-router-dom";
+import CabecalhoNav from "../../components/cabecalhoNav";
 
 function PlannerSemanal() {
   const { mes, semana } = useParams();
@@ -53,14 +54,7 @@ function PlannerSemanal() {
 
   return (
     <div className="container mx-auto px-6 py-8">
-      <nav className="flex justify-center sm:justify-start gap-7 mb-6">
-        <Link to="/planner">Home</Link>
-        <Link to="/estatisticas">Estatísticas</Link>
-        <a href="">Hábitos</a>
-        <a className="text-red-700" onClick={Sair} href="">
-          Sair
-        </a>
-      </nav>
+      <CabecalhoNav />
 
       <h1 className="text-2xl font-bold mb-4">Planner Semanal</h1>
       <p className="text-lg">

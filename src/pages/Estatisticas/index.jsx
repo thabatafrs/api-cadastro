@@ -1,7 +1,5 @@
 import { useEffect, useState } from "react";
 import api from "../../services/api";
-import { Link } from "react-router-dom";
-
 import jwt_decode from "jwt-decode";
 import {
   BarChart,
@@ -15,6 +13,7 @@ import {
   Cell,
 } from "recharts";
 import { motion } from "framer-motion";
+import CabecalhoNav from "../../components/cabecalhoNav";
 
 function Estatisticas() {
   const [habitos, setHabitos] = useState([]);
@@ -24,10 +23,6 @@ function Estatisticas() {
   const [rankingTotalFeito, setRankingTotalFeito] = useState([]);
   const [rankingPercentual, setRankingPercentual] = useState([]);
 
-  function Sair() {
-    localStorage.removeItem("token");
-    window.location.href = "/"; // Redireciona para a página de login
-  }
 
   function calcularMaiorSequencia(registros) {
     if (registros.length === 0) return 0;
@@ -207,14 +202,7 @@ function Estatisticas() {
 
   return (
     <div className="container mx-auto py-8">
-      <nav className="flex justify-center sm:justify-start gap-7 mb-6">
-        <Link to="/planner">Home</Link>
-        <Link to="/estatisticas">Estatísticas</Link>
-        <a href="">Hábitos</a>
-        <a className="text-red-700" onClick={Sair} href="">
-          Sair
-        </a>
-      </nav>
+      <CabecalhoNav />
       <div className="flex flex-col justify-center gap-5 items-center m-5">
         <h2 className="text-2xl font-bold">Estatísticas de Hábitos</h2>
         <label htmlFor="mes" className="mr-2 font-medium">

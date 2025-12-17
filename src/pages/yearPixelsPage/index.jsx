@@ -1,5 +1,6 @@
 import { useState } from "react";
 import YearPixels from "../../components/yearPixels";
+import CabecalhoNav from "../../components/cabecalhoNav";
 
 function YearPixelsPage() {
   const hoje = new Date();
@@ -8,10 +9,7 @@ function YearPixelsPage() {
 
   return (
     <div className="container mx-auto py-8">
-      <nav className="flex justify-center sm:justify-start gap-7 mb-6">
-        <a href="/planner">Planner</a>
-        <a href="/estatisticas">Estatísticas</a>
-      </nav>
+      <CabecalhoNav />
 
       <div className="flex items-center gap-4 mb-6">
         <h1 className="text-2xl font-bold">Year in Pixels</h1>
