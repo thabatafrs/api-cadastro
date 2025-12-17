@@ -33,7 +33,9 @@ function Planner() {
       <nav className="flex justify-center sm:justify-start gap-7 mb-6">
         <Link to="/">Home</Link>
         <Link to="/estatisticas">Estatísticas</Link>
-        <Link to="/year-pixels">Year in Pixels</Link>        
+        <Link to="/year-pixels">Year in Pixels</Link>
+        <Link to="/habitos">Hábitos</Link>
+
         <a className="text-red-700" onClick={Sair} href="">
           Sair
         </a>

@@ -5,6 +5,7 @@ import PlannerSemanal from "../PlannerSemanal";
 import PrivateRoute from "../../components/PrivateRoute";
 import Estatisticas from "../Estatisticas";
 import YearPixelsPage from "../yearPixelsPage";
+import HabitosPixelsPage from "../HabitosPixelsPage";
 
 function App() {
   return (
